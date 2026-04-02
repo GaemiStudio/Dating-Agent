@@ -35,6 +35,10 @@ An AI-powered onboarding agent for a dating platform — designed to feel like a
   ```
 - A microphone (voice mode only)
 
+> **Note on voice quality:** This demo uses `pyttsx3` (offline TTS) and Google's speech recognition API, which are functional but not production-grade. For a real deployment, the recommended upgrades would be:
+> - **Text-to-speech**: [ElevenLabs](https://elevenlabs.io) (free tier available, highly expressive voices) or OpenAI TTS (~$15/1M characters, no free tier)
+> - **Speech-to-text**: [OpenAI Whisper](https://openai.com/research/whisper) or [Deepgram](https://deepgram.com) for better accuracy, streaming, and longer timeouts
+
 ## Setup
 
 ```bash
