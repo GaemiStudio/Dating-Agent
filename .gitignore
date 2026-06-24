@@ -1,0 +1,21 @@
+# Virtual environments
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
+
+# Generated profile output
+user_profile.json
+conversation_history.json
