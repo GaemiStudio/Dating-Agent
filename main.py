@@ -3,17 +3,17 @@ Dating Platform Onboarding Agent
 Uses voice and text input to extract user profile information
 """
 
-import os
 import json
 import speech_recognition as sr
 from typing import Optional
 from datetime import datetime
-from langchain_openai import ChatOpenAI
+# Using Ollama locally to avoid OpenAI API key requirements during testing
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import tool
 from langchain.agents import create_agent
-import pyttsx3
+import subprocess
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -27,16 +27,10 @@ from utils import (
 )
 
 # Initialize LLM
-llm = ChatOpenAI(
+llm = ChatOllama(
     model=config.LLM_MODEL,
     temperature=config.LLM_TEMPERATURE,
-    api_key=os.getenv("OPENAI_API_KEY")
 )
-
-# Initialize text-to-speech engine
-tts_engine = pyttsx3.init()
-tts_engine.setProperty('rate', config.SPEECH_RATE)
-tts_engine.setProperty('volume', config.SPEECH_VOLUME)
 
 # Initialize speech recognizer
 recognizer = sr.Recognizer()
@@ -137,8 +131,7 @@ class VoiceTextOnboardingAgent:
     def speak(self, text: str):
         """Convert text to speech"""
         print(f"Agent: {text}")
-        tts_engine.say(text)
-        tts_engine.runAndWait()
+        subprocess.run(["say", text])
     
     def get_voice_input(self) -> Optional[str]:
         """Capture voice input from microphone"""

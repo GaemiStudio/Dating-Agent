@@ -97,3 +97,13 @@ app/
 | `DATABASE_URL` | `sqlite:///./onboarding.db` | Database connection string |
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
 | `VECTOR_DB_PATH` | `./chroma_db` | Directory for Chroma vector store |
+
+## Lessons Learned and Changes Made
+
+Turn by turn conversation was causing too much token usage and the context was not able to do anything because the
+agent was going off a set of questions. We reworked this by having the conversation go turn by turn and the agent
+would use the user's answer from the previous question as the context for the next one.
+
+pyttx3 was used initially for the speech/voice part however, pythong 3.14 has a bug that tries to use the Mac's
+objc audio component but forgets to import it first making the whole thing crash. We've swapped that for Mac's
+built-in say command.

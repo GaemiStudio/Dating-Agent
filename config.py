@@ -3,7 +3,8 @@ Configuration settings for the Dating Onboarding Agent
 """
 
 # LLM Configuration
-LLM_MODEL = "gpt-4"
+# Using mistral locally via Ollama for testing — swap to "gpt-4" with ChatOpenAI when going to production
+LLM_MODEL = "mistral"
 LLM_TEMPERATURE = 0.7
 
 # Speech Configuration
