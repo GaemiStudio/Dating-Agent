@@ -138,7 +138,6 @@ All 29 tests pass. But more importantly, writing the tests caught a **real bug**
 
 The function excluded `created_at` from the *total field count* (correctly), but still counted it as a *filled field* — meaning a fully completed profile could show **150% completion** instead of 100%. The fix was a one-line change in `utils.py` to exclude `created_at` from both sides of the calculation.
 
-This is exactly what test-driven development is for: the bug was invisible during manual testing (nobody noticed the wrong percentage) but immediately obvious the moment we wrote an assertion for it.
 
 ## Lessons Learned and Changes Made
 
