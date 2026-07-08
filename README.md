@@ -98,6 +98,48 @@ app/
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
 | `VECTOR_DB_PATH` | `./chroma_db` | Directory for Chroma vector store |
 
+## Testing
+
+### Why We Wrote Tests
+
+Test-driven development (TDD) is the practice of writing tests alongside your code so that bugs get caught automatically — before they reach users. For an AI agent, this matters more than it might seem: the LLM handles the unpredictable parts, but all the logic that validates, cleans, and formats data around it should be rock-solid and provably correct.
+
+We wrote tests targeting `utils.py` — the layer that handles input validation, text cleaning, profile completion scoring, and file I/O. These are all **deterministic** functions (same input → same output every time), which makes them ideal for unit testing. We deliberately excluded the LLM-facing functions (`extract_field`, `generate_response`) because AI responses are non-deterministic by nature: you can't assert "the model will say exactly X" — that belongs in human evaluation, not automated tests.
+
+### How the Tests Work
+
+Tests live in `tests/test_utils.py` and run with [pytest](https://pytest.org). A `conftest.py` in the same folder makes sure Python can find the project modules when tests run.
+
+The 29 tests are organized into 7 categories:
+
+| Category | What's tested |
+|---|---|
+| `validate_name` | Valid names, too short, too long, empty, None |
+| `validate_age` | Valid ages, string numbers, underage, over limit, non-numeric |
+| `validate_bio` | Valid bios, too short, empty |
+| `validate_field` | Dispatcher routing to name/age/bio validators + unknown fields |
+| `clean_text` | Whitespace stripping, space collapsing, empty input, None |
+| `get_completion_percentage` | All filled, half filled, empty profile |
+| `save_json` / `load_json` | Round-trip save/load, missing file handling |
+
+To run them yourself:
+
+```bash
+.venv/bin/pytest tests/test_utils.py -v
+```
+
+### Results — and a Bug We Found
+
+```
+29 passed in 0.02s
+```
+
+All 29 tests pass. But more importantly, writing the tests caught a **real bug** in `get_completion_percentage` that had gone unnoticed:
+
+The function excluded `created_at` from the *total field count* (correctly), but still counted it as a *filled field* — meaning a fully completed profile could show **150% completion** instead of 100%. The fix was a one-line change in `utils.py` to exclude `created_at` from both sides of the calculation.
+
+This is exactly what test-driven development is for: the bug was invisible during manual testing (nobody noticed the wrong percentage) but immediately obvious the moment we wrote an assertion for it.
+
 ## Lessons Learned and Changes Made
 
 Turn by turn conversation was causing too much token usage and the context was not able to do anything because the

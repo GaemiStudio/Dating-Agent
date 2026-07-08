@@ -8,11 +8,7 @@ import speech_recognition as sr
 from typing import Optional
 from datetime import datetime
 # Using Ollama locally to avoid OpenAI API key requirements during testing
-from langchain_ollama import ChatOllama
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.tools import tool
-from langchain.agents import create_agent
+import ollama
 import subprocess
 from dotenv import load_dotenv
 
@@ -22,14 +18,8 @@ load_dotenv()
 # Import configuration and utilities
 import config
 from utils import (
-    save_json, load_json, validate_field, clean_text,
+    save_json, validate_field, clean_text,
     format_profile_for_display, get_completion_percentage
-)
-
-# Initialize LLM
-llm = ChatOllama(
-    model=config.LLM_MODEL,
-    temperature=config.LLM_TEMPERATURE,
 )
 
 # Initialize speech recognizer
@@ -75,58 +65,6 @@ class VoiceTextOnboardingAgent:
     def __init__(self):
         self.profile = DatingProfileExtractor()
         self.input_mode = None
-        self.setup_agent()
-    
-    def setup_agent(self):
-        """Initialize LangChain agent with tools"""
-        
-        @tool
-        def extract_user_info(user_input: str, field: str) -> str:
-            """Extract specific user information from input"""
-            extraction_prompt = PromptTemplate(
-                input_variables=["user_input", "field"],
-                template="""Extract the {field} from the following user input.
-                Return ONLY the extracted value, nothing else.
-                User input: {user_input}
-                Extracted {field}:"""
-            )
-            chain = extraction_prompt | llm | StrOutputParser()
-            return chain.invoke({"user_input": user_input, "field": field}).strip()
-
-        @tool
-        def validate_profile_data(field: str, value: str) -> dict:
-            """Validate extracted profile data"""
-            validation_prompt = PromptTemplate(
-                input_variables=["field", "value"],
-                template="""Validate the following dating profile field value.
-                Field: {field}
-                Value: {value}
-                Return a JSON response with 'valid' (true/false) and 'message' keys."""
-            )
-            chain = validation_prompt | llm | StrOutputParser()
-            result = chain.invoke({"field": field, "value": value})
-            try:
-                return json.loads(result)
-            except:
-                return {"valid": True, "message": "Accepted"}
-
-        @tool
-        def generate_next_question(current_fields_filled: str) -> str:
-            """Generate the next question based on what's been filled"""
-            question_prompt = PromptTemplate(
-                input_variables=["filled_fields"],
-                template="""You are an onboarding agent for a dating platform.
-                These fields have been filled already: {filled_fields}
-                Generate a friendly, engaging next question to ask the user.
-                Ask about profile completion or interests.
-                Keep it conversational and warm."""
-            )
-            chain = question_prompt | llm | StrOutputParser()
-            return chain.invoke({"filled_fields": current_fields_filled}).strip()
-
-        tools = [extract_user_info, validate_profile_data, generate_next_question]
-
-        self.agent = create_agent(llm, tools)
     
     def speak(self, text: str):
         """Convert text to speech"""
@@ -156,6 +94,7 @@ class VoiceTextOnboardingAgent:
     
     def get_text_input(self) -> str:
         """Get text input from user"""
+        print("", flush=True)
         return input("You: ").strip()
     
     def select_input_mode(self) -> str:
@@ -197,7 +136,7 @@ class VoiceTextOnboardingAgent:
                 
                 if is_valid:
                     self.profile.profile[field] = extracted
-                    confirmation = f"Got it! I've noted that for {field}."
+                    confirmation = self.generate_response(field, extracted)
                 else:
                     confirmation = f"I need you to be more specific about {field}. {message}"
                 
@@ -222,16 +161,39 @@ class VoiceTextOnboardingAgent:
         closing = config.CLOSING_MESSAGE
         self.speak(closing)
     
+    def generate_response(self, field: str, value: str) -> str:
+        """Generate a warm, contextual response to the user's answer"""
+        filled = {k: v for k, v in self.profile.profile.items()
+                  if v and k != "created_at"}
+        context = (f"What you know about them so far: {json.dumps(filled)}"
+                   if filled else "This is the first thing they've shared.")
+
+        prompt = f"""You are a warm, friendly dating app onboarding assistant having a natural conversation.
+{context}
+The user just shared their {field}: "{value}"
+
+Write a genuine, personal response (1-2 sentences) that:
+- Comments warmly on what they shared, referencing the actual content
+- Feels natural and human, not scripted
+- Adapts your tone based on what you already know about them
+Do NOT ask another question. Just respond to what they said."""
+
+        response = ollama.chat(
+            model=config.LLM_MODEL,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response["message"]["content"].strip()
+
     def extract_field(self, field: str, user_input: str) -> str:
         """Extract field using LLM"""
-        extraction_prompt = PromptTemplate(
-            input_variables=["field", "user_input"],
-            template="""Extract the {field} from this user input.
-            Return ONLY the extracted value as a string, nothing else.
-            User input: {user_input}"""
+        prompt = f"""Extract the {field} from this user input.
+Return ONLY the extracted value as a string, nothing else.
+User input: {user_input}"""
+        response = ollama.chat(
+            model=config.LLM_MODEL,
+            messages=[{"role": "user", "content": prompt}]
         )
-        chain = extraction_prompt | llm | StrOutputParser()
-        return chain.invoke({"field": field, "user_input": user_input}).strip()
+        return response["message"]["content"].strip()
 
 
 def main():

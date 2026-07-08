@@ -188,7 +188,7 @@ def get_completion_percentage(profile: Dict[str, Any]) -> float:
         Completion percentage (0-100)
     """
     total_fields = len([k for k in profile.keys() if k != "created_at"])
-    filled_fields = len([v for v in profile.values() if v and str(v).strip()])
+    filled_fields = len([v for k, v in profile.items() if k != "created_at" and v and str(v).strip()])
     
     if total_fields == 0:
         return 0.0
