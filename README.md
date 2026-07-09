@@ -131,6 +131,49 @@ vibe = analyze_vibe(profile_dict)
 print(vibe)
 ```
 
+### Match Estimator
+
+**File:** `skills/match_estimator.py`
+**Triggered:** Automatically at the end of onboarding, after the vibe summary.
+
+Estimates what percentage of the current user base a new profile might match with. The goal isn't to maximize the number — a low percentage just means you're rarer and more specific, which is its own kind of value.
+
+**How it works — two stages, mostly deterministic:**
+
+**Stage 1 — Hard filters (no LLM, pure logic)**
+Eliminates incompatible profiles based on three rules:
+- **Gender/interested_in**: both people must be interested in each other's gender
+- **Age gap**: filtered out if more than 8 years apart
+- **Relationship goals**: long-term and casual are flagged as incompatible
+
+**Stage 2 — Soft scoring (one batched LLM call)**
+The profiles that pass hard filters are sent to the LLM in a single call. It scores each one 0–10 based on shared or complementary interests, lifestyle, and energy. Profiles scoring 6 or above count as a match. Batching all candidates into one call keeps token usage low.
+
+**Output framing (deterministic — no LLM)**
+The percentage is translated into a warm, contextual interpretation based on fixed tiers — no extra LLM call needed:
+
+| Match rate | Interpretation |
+|---|---|
+| Under 10% | You're genuinely one of a kind |
+| 10–25% | Distinctive and specific |
+| 25–50% | A nice balance of depth and approachability |
+| 50–70% | Warm and open energy |
+| 70%+ | Naturally easy to connect with |
+
+**Sample output** (28-year-old female, Seattle, long-term, hiking/reading/photography):
+
+> Based on our current community, you'd potentially match with around 30.0% of people. You have a nice balance of depth and approachability. There's a solid group of people out there who would genuinely enjoy getting to know you.
+
+**To call it directly:**
+```python
+from skills.match_estimator import estimate_matches
+result = estimate_matches(profile_dict)
+print(f"{result['percentage']}% match rate")
+print(result['interpretation'])
+```
+
+The sample profile pool lives in `data/sample_profiles.json` — 20 profiles built to reflect real-world dating app demographics (age distribution, common interests, relationship goal ratios).
+
 ## Testing
 
 ### Why We Wrote Tests

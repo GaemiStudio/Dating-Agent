@@ -22,6 +22,7 @@ from utils import (
     format_profile_for_display, get_completion_percentage
 )
 from skills.vibe_analyzer import analyze_vibe
+from skills.match_estimator import estimate_matches
 
 recognizer = sr.Recognizer()
 
@@ -224,6 +225,17 @@ Sound like a real person on a coffee date, not a chatbot running through a check
         vibe = analyze_vibe(self.profile.profile)
         print(vibe)
         self.speak(vibe)
+
+        # Estimate how many users they might match with
+        print("\n💫 Your Match Estimate\n" + "-" * 40)
+        match_result = estimate_matches(self.profile.profile)
+        match_summary = (
+            f"Based on our current community, you'd potentially match with around "
+            f"{match_result['percentage']}% of people. "
+            f"{match_result['interpretation']}"
+        )
+        print(match_summary)
+        self.speak(match_summary)
 
         self.profile.save_profile()
         self.speak(config.CLOSING_MESSAGE)

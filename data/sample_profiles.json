@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Jordan",
+    "age": "28",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Chicago",
+    "interests": "gym, sports, hiking, cooking",
+    "relationship_goals": "long-term relationship",
+    "bio": "Personal trainer who loves being active. Always up for a weekend adventure or trying a new restaurant."
+  },
+  {
+    "name": "Maya",
+    "age": "25",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Austin",
+    "interests": "travel, food, brunch, music festivals, photography",
+    "relationship_goals": "long-term relationship",
+    "bio": "Marketing coordinator who lives for long weekends and good playlists. Looking for someone to explore with."
+  },
+  {
+    "name": "Tyler",
+    "age": "31",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Denver",
+    "interests": "gaming, movies, tech, cooking at home",
+    "relationship_goals": "open to anything",
+    "bio": "Software engineer. Homebodey but the fun kind. I make a great pasta and know every good show to watch."
+  },
+  {
+    "name": "Priya",
+    "age": "27",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "New York",
+    "interests": "yoga, reading, art galleries, coffee, journaling",
+    "relationship_goals": "long-term relationship",
+    "bio": "UX designer with a soft spot for bookstores and slow mornings. Looking for something real."
+  },
+  {
+    "name": "Marcus",
+    "age": "34",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Atlanta",
+    "interests": "music, concerts, cooking, basketball, socializing",
+    "relationship_goals": "open to anything",
+    "bio": "Music producer and self-taught chef. Life is better with good food and even better people around."
+  },
+  {
+    "name": "Emma",
+    "age": "29",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Seattle",
+    "interests": "hiking, photography, coffee, reading, farmers markets",
+    "relationship_goals": "long-term relationship",
+    "bio": "Environmental consultant who spends most weekends outdoors. I take my coffee seriously and my adventures lightly."
+  },
+  {
+    "name": "Jake",
+    "age": "26",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Los Angeles",
+    "interests": "sports, beach, socializing, travel, fitness",
+    "relationship_goals": "casual, open to more",
+    "bio": "Sales rep and weekend beach bum. Always down for something spontaneous."
+  },
+  {
+    "name": "Sofia",
+    "age": "32",
+    "gender": "female",
+    "interested_in": "everyone",
+    "location": "Portland",
+    "interests": "painting, yoga, food, indie music, thrifting",
+    "relationship_goals": "long-term relationship",
+    "bio": "Graphic designer and part-time ceramics student. I believe in slow Sundays and weird art."
+  },
+  {
+    "name": "David",
+    "age": "38",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Boston",
+    "interests": "hiking, cooking, reading, travel, family time",
+    "relationship_goals": "long-term relationship, open to marriage",
+    "bio": "Architect and dad-joke enthusiast. I cook like it's a love language because I think it is."
+  },
+  {
+    "name": "Zoe",
+    "age": "24",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Miami",
+    "interests": "fitness, music, dancing, going out, travel",
+    "relationship_goals": "open to anything",
+    "bio": "Fitness instructor and social butterfly. I live for good music and great energy."
+  },
+  {
+    "name": "Chris",
+    "age": "30",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "San Francisco",
+    "interests": "photography, travel, minimalism, coffee, cycling",
+    "relationship_goals": "open to anything",
+    "bio": "Product manager with a camera always in his bag. I like experiences over things and conversations over small talk."
+  },
+  {
+    "name": "Rachel",
+    "age": "35",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Washington DC",
+    "interests": "fitness, reading, cooking, politics, travel",
+    "relationship_goals": "long-term relationship",
+    "bio": "Attorney who runs half marathons and reads two books a month. Looking for an equal, not a project."
+  },
+  {
+    "name": "Mike",
+    "age": "29",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Houston",
+    "interests": "cooking, sports, socializing, movies, BBQ",
+    "relationship_goals": "casual, open to more",
+    "bio": "Chef by trade, homecook by heart. Big on good food, better company, zero drama."
+  },
+  {
+    "name": "Lily",
+    "age": "26",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Nashville",
+    "interests": "dancing, live music, travel, fitness, cooking",
+    "relationship_goals": "long-term relationship",
+    "bio": "Dance teacher with a love for live music and road trips. Nashville is home but I'm always planning the next trip."
+  },
+  {
+    "name": "Kevin",
+    "age": "33",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Phoenix",
+    "interests": "running, cycling, hiking, meal prep, podcasts",
+    "relationship_goals": "long-term relationship",
+    "bio": "Endurance athlete and data nerd. I train hard and recover well. Looking for someone who gets the lifestyle."
+  },
+  {
+    "name": "Alex",
+    "age": "28",
+    "gender": "female",
+    "interested_in": "everyone",
+    "location": "Seattle",
+    "interests": "gaming, movies, anime, cooking, cozy nights in",
+    "relationship_goals": "open to anything",
+    "bio": "Game developer who unwinds with good food and better games. I'm an introvert who gives great one-on-one energy."
+  },
+  {
+    "name": "Ryan",
+    "age": "27",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "New York",
+    "interests": "music production, creative writing, vinyl records, coffee, late nights",
+    "relationship_goals": "casual, open to more",
+    "bio": "Musician and night owl. I make beats and overthink things. Looking for someone interesting, not just available."
+  },
+  {
+    "name": "Hannah",
+    "age": "31",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Portland",
+    "interests": "volunteering, animals, yoga, gardening, cooking",
+    "relationship_goals": "long-term relationship",
+    "bio": "Veterinary tech and plant parent. My dog will probably like you more than I do at first. That's a compliment."
+  },
+  {
+    "name": "Sam",
+    "age": "36",
+    "gender": "male",
+    "interested_in": "women",
+    "location": "Chicago",
+    "interests": "travel, entrepreneurship, fitness, networking, cooking",
+    "relationship_goals": "open to anything",
+    "bio": "Startup founder who travels too much and cooks to decompress. Looking for someone who can keep up and slow down."
+  },
+  {
+    "name": "Chloe",
+    "age": "23",
+    "gender": "female",
+    "interested_in": "men",
+    "location": "Los Angeles",
+    "interests": "fitness, fashion, going out, brunch, social media",
+    "relationship_goals": "casual, open to more",
+    "bio": "Content creator and fitness junkie. LA born and raised. Life is too short for bad vibes."
+  }
+]
