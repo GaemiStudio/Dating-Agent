@@ -98,6 +98,39 @@ app/
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
 | `VECTOR_DB_PATH` | `./chroma_db` | Directory for Chroma vector store |
 
+## AI Skills
+
+Skills are focused AI capabilities that do one specific thing well. Each skill lives in the `skills/` folder as its own module and can be called independently or triggered automatically during the agent flow. They use the same local Ollama model as the rest of the agent.
+
+### Vibe Analyzer
+
+**File:** `skills/vibe_analyzer.py`
+**Triggered:** Automatically at the end of onboarding, after the profile is complete.
+
+Takes a completed dating profile and generates a short, poetic personality summary — not a list of facts, but a feeling. It uses sensory imagery woven naturally into the description:
+
+- A **color or palette** that feels like the person
+- A **season**
+- A **time of day**
+- A **sound or texture**
+
+It closes with one gentle, surprising observation about what very different kind of energy might actually complement them well.
+
+The tone is quiet and warm — like a thoughtful friend describing someone they genuinely admire.
+
+**Example output** (for a 28-year-old hiker and reader based in Seattle):
+
+> In the soft embrace of a Pacific Northwest autumn, Alex shines like the warm amber hues of an evening sun setting over the Olympic Mountains. Her energy is calm and serene, much like the stillness that falls upon the city as the day turns to dusk. Her passion for hiking and reading reflects an introspective soul who finds peace in nature and the written word. The comforting hum of a quiet coffee shop serves as her rhythm, mirroring her easy-going demeanor.
+>
+> One might find that a more adventurous spirit, with a zest for life and a love for spontaneity, could bring a charming balance to Alex's tranquil disposition, creating a perfect symphony of serenity and excitement in their shared journey.
+
+**To call it directly:**
+```python
+from skills.vibe_analyzer import analyze_vibe
+vibe = analyze_vibe(profile_dict)
+print(vibe)
+```
+
 ## Testing
 
 ### Why We Wrote Tests
