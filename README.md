@@ -16,87 +16,78 @@ An AI-powered onboarding agent for a dating platform — designed to feel like a
 
 | Layer | Technology |
 |---|---|
-| Conversation flow | LangGraph |
-| LLM inference | Ollama (llama2, local) |
-| LLM framework | LangChain |
-| Vector memory | Chroma + HuggingFace `all-MiniLM-L6-v2` |
-| Database | SQLite (SQLAlchemy ORM) |
-| Data validation | Pydantic |
+| LLM inference | Ollama (mistral, local) |
+| LLM framework | LangChain / direct ollama.chat() |
 | Voice input | SpeechRecognition (Google API) |
-| Voice output | pyttsx3 |
+| Voice output | macOS built-in `say` command |
+| Testing | pytest |
 
 ## Prerequisites
 
-- **Python 3.10+**
+- **Python 3.10+** (tested on Python 3.14)
 - **Ollama** running locally — install from [ollama.ai](https://ollama.ai), then:
   ```bash
   ollama serve
-  ollama pull llama2
+  ollama pull mistral
   ```
 - A microphone (voice mode only)
 
-> **Note on voice quality:** This demo uses `pyttsx3` (offline TTS) and Google's speech recognition API, which are functional but not production-grade. For a real deployment, the recommended upgrades would be:
-> - **Text-to-speech**: [ElevenLabs](https://elevenlabs.io) (free tier available, highly expressive voices) or OpenAI TTS (~$15/1M characters, no free tier)
-> - **Speech-to-text**: [OpenAI Whisper](https://openai.com/research/whisper) or [Deepgram](https://deepgram.com) for better accuracy, streaming, and longer timeouts
+> **Note on voice quality:** TTS uses the macOS built-in `say` command (no dependencies). For production, consider [ElevenLabs](https://elevenlabs.io) or OpenAI TTS for higher quality voices. For STT, [OpenAI Whisper](https://openai.com/research/whisper) or [Deepgram](https://deepgram.com) offer better accuracy than the Google API used here.
 
 ## Setup
 
 ```bash
-# 1. Install dependencies
+# 1. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 2. Seed the database with demo profiles (optional)
-python seed_db.py
-
 # 3. Run
-python run_onboarding.py
+python main.py
 ```
 
 When prompted, choose `text` or `voice` mode.
 
-## Viewing Profiles
-
-```bash
-python list_profiles.py           # all profiles
-python list_profiles.py --limit 5 # first 5
-```
-
 ## Project Structure
 
 ```
-run_onboarding.py       # Entry point
-list_profiles.py        # CLI tool to query saved profiles
-seed_db.py              # Loads seeds.json into the database
-seeds.json              # 9 sample user profiles
+main.py                         # Orchestrator — coordinates everything, makes no decisions itself
+io_handler.py                   # All I/O: speak(), get_input(), select_input_mode()
+profile_store.py                # Data container: holds profile fields + conversation history
+config.py                       # Constants and configuration
+utils.py                        # Pure utility functions (validation, formatting, file I/O)
 
-app/
-  onboarding_graph.py   # LangGraph state machine (conversation flow)
-  agent.py              # LLM-based profile extractor
-  vector_store.py       # Chroma vector memory (store + retrieve)
-  models.py             # SQLAlchemy models: User, Conversation, Message
-  db.py                 # Database engine and session setup
-  voice.py              # Text-to-speech and speech-to-text
+skills/
+  field_extractor.py            # Extracts profile fields from free-form answers
+  conversation_director.py      # Decides what the agent says next
+  vibe_analyzer.py              # Generates a poetic personality vibe summary
+  match_estimator.py            # Estimates match rate against the sample profile pool
+
+data/
+  sample_profiles.json          # 20 profiles mirroring real-world demographics
+
+tests/
+  conftest.py                   # Path setup for pytest
+  test_utils.py                 # 29 unit tests for utils.py
 ```
 
 ## How It Works
 
-1. A new session UUID is created and a `Conversation` record is opened in the DB.
-2. LangGraph steps through 11 questions, one node at a time.
-3. Each answer is:
-   - Saved to the `Message` table
-   - Embedded and stored in Chroma (local `./chroma_db/`)
-   - Passed to the LLM alongside semantically similar past answers to extract updated profile fields
-4. The LLM generates a contextual acknowledgment for each answer, optionally referencing what the user said earlier.
-5. Every 3 questions, a personalized insight is generated from the accumulated profile.
-6. At the end, the user confirms their profile and it's saved to the `User` table.
+1. `main.py` calls `_setup()` — picks input mode, delivers the opening greeting.
+2. `_conversation_loop()` runs up to 20 turns:
+   - Gets user input via `io_handler`
+   - Calls `skills/field_extractor` to scan the answer for profile fields (deterministic rules first, then LLM)
+   - Updates `profile_store` with any valid fields found
+   - Calls `skills/conversation_director` to generate the next warm, contextual message
+3. `_wrap_up()` runs when all required fields are filled:
+   - Displays the completed profile
+   - Runs the **Vibe Analyzer** skill
+   - Runs the **Match Estimator** skill
+   - Saves the profile to `user_profile.json`
 
-## Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_URL` | `sqlite:///./onboarding.db` | Database connection string |
-| `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
-| `VECTOR_DB_PATH` | `./chroma_db` | Directory for Chroma vector store |
+Each module has exactly one responsibility. If something breaks, you know exactly which file to open.
 
 ## AI Skills
 
@@ -215,12 +206,24 @@ All 29 tests pass. But more importantly, writing the tests caught a **real bug**
 The function excluded `created_at` from the *total field count* (correctly), but still counted it as a *filled field* — meaning a fully completed profile could show **150% completion** instead of 100%. The fix was a one-line change in `utils.py` to exclude `created_at` from both sides of the calculation.
 
 
+## Architecture Philosophy
+
+The code is split so that each file does exactly one thing. The reason for this is straightforward: if there's only one agent doing too much, it should be split into more agents with more granular tasks or skills. If there are places where deterministic code can do it better than an LLM, it should be substituted. The way the code is written should be easy to follow and debug — sectionalized so that when something goes wrong, you know exactly which file to look at.
+
+This leads to a few concrete rules in this codebase:
+
+- **LLM only where necessary.** The field extractor tries a regex for age before calling the model. The match estimator uses pure logic for hard filters and a single batched LLM call for soft scoring. The output interpretation is a fixed lookup table. Each of these saved tokens and made the output more predictable.
+- **No hidden state in skills.** `conversation_director` and `field_extractor` receive all their context as arguments. They don't reach into `profile_store` themselves — that's the orchestrator's job.
+- **VERBOSE_MODE for debuggability.** When `VERBOSE_MODE = True` in `config.py`, the orchestrator prints which fields were extracted each turn, making it easy to trace exactly what the LLM did and didn't pick up.
+
 ## Lessons Learned and Changes Made
 
-Turn by turn conversation was causing too much token usage and the context was not able to do anything because the
-agent was going off a set of questions. We reworked this by having the conversation go turn by turn and the agent
-would use the user's answer from the previous question as the context for the next one.
+**Conversation redesign**: Turn-by-turn scripted questions were causing too much token usage and felt robotic. Reworked to an LLM-driven flow where each agent message is a genuine response to what the user said, with missing fields woven in naturally rather than asked in sequence.
 
-pyttx3 was used initially for the speech/voice part however, pythong 3.14 has a bug that tries to use the Mac's
-objc audio component but forgets to import it first making the whole thing crash. We've swapped that for Mac's
-built-in say command.
+**pyttsx3 → macOS say**: `pyttsx3` on Python 3.14 crashes with `NameError: name 'objc' is not defined` because a macOS audio driver forgets to import its own dependency. Replaced with `subprocess.run(["say", text])` — zero dependencies, works immediately.
+
+**langchain_ollama hanging**: The `langchain_ollama` package creates an HTTP client at module import time, which hangs on Python 3.14. Switched to importing `ollama` directly and calling `ollama.chat()` — simpler and more debuggable.
+
+**SpeechRecognition upgrade**: Version 3.10.0 used the `aifc` module which was removed in Python 3.13. Upgraded to 3.17.0.
+
+**Monolith → modules**: The original `VoiceTextOnboardingAgent` class handled I/O, LLM calls, data storage, and orchestration all in one place. Refactored into focused single-responsibility modules (see Project Structure above). The test for `get_completion_percentage` caught a real bug during this process — the `created_at` timestamp was excluded from the total field count but still counted as a filled field, producing completion percentages over 100%.
