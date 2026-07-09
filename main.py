@@ -21,6 +21,7 @@ from utils import (
     save_json, validate_field, clean_text,
     format_profile_for_display, get_completion_percentage
 )
+from skills.vibe_analyzer import analyze_vibe
 
 recognizer = sr.Recognizer()
 
@@ -217,6 +218,12 @@ Sound like a real person on a coffee date, not a chatbot running through a check
 
         completion = get_completion_percentage(self.profile.profile)
         print(f"\n✅ Profile Completion: {completion:.1f}%")
+
+        # Generate and share the vibe summary
+        print("\n✨ Your Vibe\n" + "-" * 40)
+        vibe = analyze_vibe(self.profile.profile)
+        print(vibe)
+        self.speak(vibe)
 
         self.profile.save_profile()
         self.speak(config.CLOSING_MESSAGE)
