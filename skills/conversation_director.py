@@ -26,18 +26,25 @@ def get_next_message(
 
     prompt = f"""{config.AGENT_PERSONA}
 
-What you know about them so far: {json.dumps(profile_so_far)}
-Still need to find out: {missing_str}
-Recent conversation: {json.dumps(recent_history)}
+Already collected — do NOT ask about any of these again:
+{json.dumps(profile_so_far)}
+
+Still need (ask about these in order of priority):
+{missing_str}
+
+Recent conversation:
+{json.dumps(recent_history)}
+
 They just said: "{user_input}"
 
-Write your next message (2-3 sentences max):
-1. Respond warmly to what they said — be genuine, reference the actual content
-2. Then either:
-   - Ask a natural follow-up if their answer opened something interesting
-   - OR casually bring one of the missing fields into the conversation (don't make it feel like a form)
-   - OR if the moment feels right, throw in this fun one: "{random_q}"
-Sound like a real person on a coffee date, not a chatbot running through a checklist."""
+Write your reply. Rules:
+- Max 2 sentences total
+- One brief, genuine reaction to what they said (don't over-explain or keep asking about the same topic)
+- Then ask EXACTLY ONE question — about the first thing in the "still need" list above, woven in naturally
+- Only swap that for the fun question below if fewer than 3 fields remain: "{random_q}"
+- Never ask two questions in one message
+- Never ask about something already in "already collected"
+- Sound like a real person, not a checklist"""
 
     response = ollama.chat(
         model=config.LLM_MODEL,
