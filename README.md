@@ -30,9 +30,38 @@ An AI-powered onboarding agent for a dating platform — designed to feel like a
   ollama serve
   ollama pull mistral
   ```
-- A microphone (voice mode only)
+- A microphone (voice mode only — see Voice Input section below)
 
-> **Note on voice quality:** TTS uses the macOS built-in `say` command (no dependencies). For production, consider [ElevenLabs](https://elevenlabs.io) or OpenAI TTS for higher quality voices. For STT, [OpenAI Whisper](https://openai.com/research/whisper) or [Deepgram](https://deepgram.com) offer better accuracy than the Google API used here.
+## Voice Input
+
+Voice mode is implemented in [io_handler.py](io_handler.py) using the `SpeechRecognition` library. Here's how it works:
+
+1. Opens the microphone via `sr.Microphone()`
+2. Adjusts for ambient noise for 1 second
+3. Listens with a configurable timeout (`VOICE_TIMEOUT` in `config.py`, default 10 seconds)
+4. Sends the audio to **Google's speech-to-text API** over the internet
+5. Returns the transcribed text, or falls back gracefully if it fails
+
+**Voice mode is not enabled by default** because it requires two extra dependencies that aren't in `requirements.txt` yet:
+
+```bash
+# 1. Install PortAudio (C library that PyAudio wraps)
+brew install portaudio
+
+# 2. Install the Python binding
+.venv/bin/pip install pyaudio
+```
+
+Once those are installed, select option 1 at the input mode prompt and it will use your microphone.
+
+**Current limitations:**
+- Requires an internet connection (calls Google's remote API)
+- Waits for silence before processing — no streaming
+- Basic transcription only, no punctuation awareness
+
+**For a future upgrade:** swap `recognize_google` for [faster-whisper](https://github.com/SYSTRAN/faster-whisper) to run speech recognition fully offline and locally, consistent with how the LLM is handled via Ollama.
+
+> **TTS note:** Text-to-speech uses the macOS built-in `say` command and only fires when voice mode is selected. On Linux/Windows it prints only. For production-quality voices, [ElevenLabs](https://elevenlabs.io) or OpenAI TTS are good options.
 
 ## Setup
 
