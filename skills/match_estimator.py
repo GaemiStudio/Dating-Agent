@@ -7,8 +7,9 @@ Uses hard rules first (no LLM), then one batched LLM call for soft scoring.
 import json
 import re
 import os
-import ollama
+
 import config
+from llm import chat
 
 # Path to the sample profile database
 PROFILES_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "sample_profiles.json")
@@ -110,12 +111,8 @@ Candidates:
 For each candidate score compatibility 0-10 based on shared or complementary interests, lifestyle, and energy.
 Return ONLY a JSON array of integer scores in order. Example: [7, 4, 9, 3]"""
 
-    response = ollama.chat(
-        model=config.LLM_MODEL,
-        messages=[{"role": "user", "content": prompt}]
-    )
     try:
-        content = response["message"]["content"].strip()
+        content = chat(prompt)
         bracket_match = re.search(r'\[([^\]]+)\]', content, re.DOTALL)
         if bracket_match:
             # Strip inline comments before extracting numbers

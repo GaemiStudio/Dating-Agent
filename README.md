@@ -11,6 +11,28 @@ An AI-powered onboarding agent for a dating platform — designed to feel like a
 - **Match Estimator**: Estimates what percentage of the sample user pool the new profile would match with, using hard logic filters first and one batched LLM call for soft scoring.
 - **Profile saved locally**: Completed profile is saved to `user_profile.json`.
 
+## Switching LLM Providers
+
+The agent is provider-agnostic. All LLM calls go through `llm.py` — skills never call Ollama or Gemini directly. To switch, change two lines in `config.py`:
+
+**Ollama (local, free, no internet needed):**
+```python
+LLM_PROVIDER = "ollama"
+LLM_MODEL = "mistral"
+```
+
+**Gemini (cloud, free tier, requires API key):**
+```python
+LLM_PROVIDER = "gemini"
+LLM_MODEL = "gemini-1.5-flash"
+```
+
+For Gemini, add your key to a `.env` file in the project root:
+```
+GEMINI_API_KEY=your_key_here
+```
+Get a free key at [aistudio.google.com](https://aistudio.google.com) — the free tier allows 1,500 requests/day which is plenty for testing.
+
 ## Stack
 
 | Layer | Technology |

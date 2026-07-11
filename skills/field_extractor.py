@@ -7,9 +7,9 @@ the remaining fields to the LLM in a single call.
 
 import re
 import json
-import ollama
 
 import config
+from llm import chat
 from utils import validate_field
 
 # Matches standalone ages 18–120 without picking up years like "1998"
@@ -75,11 +75,7 @@ Rules:
 
 Return ONLY valid JSON. Example: {{"name": "Alex", "location": "Seattle"}}"""
 
-        response = ollama.chat(
-            model=config.LLM_MODEL,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        llm_result = _parse_json_from_response(response["message"]["content"])
+        llm_result = _parse_json_from_response(chat(prompt))
         extracted.update(llm_result)
 
     return extracted

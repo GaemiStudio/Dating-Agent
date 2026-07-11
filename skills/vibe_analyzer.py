@@ -4,8 +4,9 @@ Reads a completed dating profile and returns a sensory, poetic personality summa
 """
 
 import json
-import ollama
+
 import config
+from llm import chat
 
 
 def analyze_vibe(profile: dict) -> str:
@@ -35,8 +36,4 @@ No bullet points. No headers. Just the description.
 Profile:
 {json.dumps(clean_profile, indent=2)}"""
 
-    response = ollama.chat(
-        model=config.LLM_MODEL,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response["message"]["content"].strip()
+    return chat(prompt)

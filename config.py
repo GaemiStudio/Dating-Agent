@@ -3,7 +3,10 @@ Configuration settings for the Dating Onboarding Agent
 """
 
 # LLM Configuration
-# Using mistral locally via Ollama for testing — swap to "gpt-4" with ChatOpenAI when going to production
+# Switch providers by changing LLM_PROVIDER and LLM_MODEL together:
+#   Ollama (local, free): LLM_PROVIDER = "ollama", LLM_MODEL = "mistral"
+#   Gemini (cloud, free tier): LLM_PROVIDER = "gemini", LLM_MODEL = "gemini-1.5-flash"
+LLM_PROVIDER = "ollama"
 LLM_MODEL = "mistral"
 LLM_TEMPERATURE = 0.7
 

@@ -1,6 +1,4 @@
-langchain>=0.3.0
-langchain-ollama>=0.2.0
-langchain-core>=0.3.0
-openai>=1.50.0
+ollama>=0.3.0
+google-generativeai>=0.8.0
 SpeechRecognition>=3.17.0
 python-dotenv>=1.0.0
