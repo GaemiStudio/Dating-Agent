@@ -4,6 +4,7 @@ All input and output lives here — speaking, listening, and text input.
 No decisions, no LLM calls. Just moving words in and out.
 """
 
+import sys
 import subprocess
 import speech_recognition as sr
 from typing import Optional
@@ -15,7 +16,9 @@ _recognizer = sr.Recognizer()
 
 def speak(text: str) -> None:
     print(f"\nAgent: {text}")
-    subprocess.run(["say", text])
+    if sys.platform == "darwin":
+        subprocess.run(["say", text])
+    # On Linux/Windows, text is already printed above — add TTS here if needed
 
 
 def get_text_input() -> str:

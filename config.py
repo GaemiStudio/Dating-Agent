@@ -27,7 +27,8 @@ PROFILE_FIELDS = [
 # Output Configuration
 PROFILE_SAVE_PATH = "user_profile.json"
 CONVERSATION_HISTORY_PATH = "conversation_history.json"
-VERBOSE_MODE = True
+VERBOSE_MODE = False
+MAX_TURNS = 20
 
 # Validation Rules
 MIN_BIO_LENGTH = 10

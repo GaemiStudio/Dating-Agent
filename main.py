@@ -23,7 +23,6 @@ REQUIRED_FIELDS = [
     "name", "age", "gender", "interested_in",
     "location", "bio", "interests", "relationship_goals",
 ]
-MAX_TURNS = 20
 
 
 class OnboardingAgent:
@@ -48,7 +47,7 @@ class OnboardingAgent:
         Run until all required fields are filled or the turn limit is hit.
         Each turn: get input → extract fields → respond.
         """
-        for turn in range(MAX_TURNS):
+        for turn in range(config.MAX_TURNS):
             missing = self.store.get_missing(REQUIRED_FIELDS)
             if not missing:
                 break
@@ -120,8 +119,21 @@ class OnboardingAgent:
         self._wrap_up()
 
 
+def _check_ollama() -> None:
+    """Fail fast with a helpful message if Ollama isn't running."""
+    import urllib.request
+    try:
+        urllib.request.urlopen("http://localhost:11434", timeout=3)
+    except Exception:
+        print("\n❌ Ollama is not reachable at http://localhost:11434")
+        print("   Start it with: ollama serve")
+        raise SystemExit(1)
+
+
 def main():
     try:
+        _check_ollama()
+
         if config.VERBOSE_MODE:
             print("=" * 60)
             print("Dating Platform Onboarding Agent")
