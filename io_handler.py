@@ -12,13 +12,13 @@ from typing import Optional
 import config
 
 _recognizer = sr.Recognizer()
+_tts_enabled = False  # set to True only when user picks voice mode
 
 
 def speak(text: str) -> None:
     print(f"\nAgent: {text}")
-    if sys.platform == "darwin":
+    if _tts_enabled and sys.platform == "darwin":
         subprocess.run(["say", text])
-    # On Linux/Windows, text is already printed above — add TTS here if needed
 
 
 def get_text_input() -> str:
@@ -53,8 +53,11 @@ def get_input(mode: str) -> Optional[str]:
 
 
 def select_input_mode() -> str:
+    global _tts_enabled
     print("\n--- Dating Platform Onboarding ---")
     print("1. Voice Input 🎤")
     print("2. Text Input ⌨️")
     choice = input("Select input mode (1 or 2): ").strip()
-    return "voice" if choice == "1" else "text"
+    mode = "voice" if choice == "1" else "text"
+    _tts_enabled = (mode == "voice")
+    return mode
