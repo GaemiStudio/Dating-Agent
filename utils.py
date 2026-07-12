@@ -111,6 +111,21 @@ def validate_bio(bio: str) -> tuple[bool, str]:
     return True, "Bio is valid"
 
 
+_GENDER_KEYWORDS = {
+    "men", "women", "male", "female", "everyone", "anyone",
+    "non-binary", "all", "open", "both", "any", "man", "woman",
+    "guy", "girl", "fem", "masc",
+}
+
+
+def validate_interested_in(value: str) -> tuple[bool, str]:
+    if not value or not isinstance(value, str):
+        return False, "interested_in must be a non-empty string"
+    if any(kw in value.lower() for kw in _GENDER_KEYWORDS):
+        return True, "interested_in is valid"
+    return False, "interested_in should be a gender (e.g. 'women', 'men', 'everyone')"
+
+
 def validate_field(field: str, value: Any) -> tuple[bool, str]:
     """
     General field validation dispatcher
@@ -126,6 +141,7 @@ def validate_field(field: str, value: Any) -> tuple[bool, str]:
         "name": validate_name,
         "age": validate_age,
         "bio": validate_bio,
+        "interested_in": validate_interested_in,
     }
     
     if field in validators:

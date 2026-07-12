@@ -74,6 +74,9 @@ class OnboardingAgent:
             extracted = extract_fields(user_input, missing)
             for field, value in extracted.items():
                 if field in REQUIRED_FIELDS and not self.store.profile.get(field):
+                    # Normalize list values (LLM sometimes returns arrays)
+                    if isinstance(value, list):
+                        value = ", ".join(str(v) for v in value)
                     is_valid, _ = validate_field(field, str(value))
                     if is_valid:
                         self.store.set_field(field, value)

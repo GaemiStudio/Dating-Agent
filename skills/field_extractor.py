@@ -68,7 +68,8 @@ Extract any of these profile fields if they are clearly mentioned or strongly im
 Rules:
 - Only include fields you are confident about
 - For "age", return just the number as a string
-- For "interests", return a comma-separated string
+- For "interested_in", return ONLY a gender (e.g. "women", "men", "everyone", "non-binary") — never a location, age range, or personality type
+- For "interests", return a comma-separated string of hobbies/activities
 - For "bio", return a short summary of what they said about themselves
 - Return a JSON object with only the fields you found
 - If nothing is extractable, return {{}}

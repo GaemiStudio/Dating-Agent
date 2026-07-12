@@ -11,6 +11,12 @@ An AI-powered onboarding agent for a dating platform — designed to feel like a
 - **Match Estimator**: Estimates what percentage of the sample user pool the new profile would match with, using hard logic filters first and one batched LLM call for soft scoring.
 - **Profile saved locally**: Completed profile is saved to `user_profile.json`.
 
+## Demo
+
+A sample onboarding session in text mode. The agent gathers all 8 profile fields through natural conversation, then generates the vibe summary and match estimate.
+
+![Demo conversation](docs/demo.png)
+
 ## Switching LLM Providers
 
 The agent is provider-agnostic. All LLM calls go through `llm.py` — skills never call Ollama or Gemini directly. To switch, change two lines in `config.py`:
