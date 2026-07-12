@@ -91,38 +91,42 @@ def _soft_score(new_profile: dict, candidates: list) -> list:
     Returns a list of scores (0-10) in the same order as candidates.
     """
     clean_new = {k: v for k, v in new_profile.items() if v and k != "created_at"}
+    # No IDs in candidate list — they cause the LLM to echo numbers back and break parsing
     candidates_text = json.dumps(
-        [{"id": i, "interests": p.get("interests", ""), "bio": p.get("bio", ""),
+        [{"interests": p.get("interests", ""), "bio": p.get("bio", ""),
           "relationship_goals": p.get("relationship_goals", "")}
-         for i, p in enumerate(candidates)],
+         for p in candidates],
         indent=2
     )
+    n = len(candidates)
 
-    prompt = f"""Score lifestyle and personality compatibility between this person and each candidate.
+    prompt = f"""Score lifestyle compatibility between the person below and each of the {n} candidates.
 
-New profile:
+Person:
 Interests: {clean_new.get("interests", "")}
 Bio: {clean_new.get("bio", "")}
-Relationship goals: {clean_new.get("relationship_goals", "")}
+Goals: {clean_new.get("relationship_goals", "")}
 
-Candidates:
+Candidates (in order):
 {candidates_text}
 
-For each candidate score compatibility 0-10 based on shared or complementary interests, lifestyle, and energy.
-Return ONLY a JSON array of integer scores in order. Example: [7, 4, 9, 3]"""
+Return ONLY a JSON array of exactly {n} integers (0-10), one score per candidate in order.
+No text, no labels, no explanation — just the array.
+Example for 3 candidates: [7, 4, 9]"""
 
     try:
         content = chat(prompt)
         bracket_match = re.search(r'\[([^\]]+)\]', content, re.DOTALL)
         if bracket_match:
-            # Strip inline comments before extracting numbers
             inner = re.sub(r'//[^\n]*', '', bracket_match.group(1))
-            scores = [int(n) for n in re.findall(r'\b\d+\b', inner)]
-            if len(scores) == len(candidates):
+            scores = [int(x) for x in re.findall(r'\b\d+\b', inner)]
+            if len(scores) == n:
                 return scores
+            if len(scores) > n:
+                return scores[:n]  # trim extras if LLM added trailing numbers
     except Exception:
         pass
-    return [5] * len(candidates)
+    return [5] * n
 
 
 def _interpret(percentage: float) -> str:

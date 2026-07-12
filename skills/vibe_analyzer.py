@@ -19,19 +19,12 @@ def analyze_vibe(profile: dict, stream: bool = False) -> str:
     clean_profile = {k: v for k, v in profile.items()
                      if v and k != "created_at"}
 
-    prompt = f"""You are writing a quiet, warm personality vibe for someone's dating profile.
+    prompt = f"""Write a 2-sentence personality vibe for someone's dating profile. Short, grounded, warm — not poetic or romantic.
 
-Based on the profile below, write a 3-4 sentence description of this person's energy and vibe.
-Weave in the following naturally — don't list them as separate items, just let them flow:
-- A color or palette that feels like them
-- A season
-- A time of day
-- A sound or texture
+Sentence 1: Capture their energy using one sensory detail — a color, season, time of day, or texture. Keep it specific to who they actually are.
+Sentence 2: One honest observation about what kind of person might complement them well.
 
-Then close with one gentle, surprising observation about what very different kind of person or energy might actually complement them well.
-
-Write in a quiet, warm tone — like a thoughtful friend describing someone they genuinely admire.
-No bullet points. No headers. Just the description.
+No metaphors. No flowery language. No paragraphs. Just two clear, warm sentences.
 
 Profile:
 {json.dumps(clean_profile, indent=2)}"""

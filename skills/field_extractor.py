@@ -70,7 +70,7 @@ Rules:
 - For "age", return just the number as a string
 - For "interested_in", return ONLY a gender (e.g. "women", "men", "everyone", "non-binary") — never a location, age range, or personality type
 - For "interests", return a comma-separated string of hobbies/activities
-- For "bio", return a short summary of what they said about themselves
+- For "bio", return a meaningful summary of the person's lifestyle, personality, or background. Only extract if the user said something substantive — skip greetings, filler phrases, or single-word answers
 - Return a JSON object with only the fields you found
 - If nothing is extractable, return {{}}
 
