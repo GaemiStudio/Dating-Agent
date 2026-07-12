@@ -16,12 +16,25 @@ def get_next_message(
     missing_fields: list,
     profile_so_far: dict,
     recent_history: list,
+    wrap_up: bool = False,
     stream: bool = False,
 ) -> str:
     """
     Generate a warm response to user_input that also nudges toward
     one of the missing profile fields — without making it feel like a form.
+    When wrap_up=True, produce a natural closing line with no questions.
     """
+    if wrap_up:
+        prompt = f"""{config.AGENT_PERSONA}
+
+You're finishing a casual onboarding chat on a dating app. The user just said: "{user_input}"
+
+Recent conversation:
+{json.dumps(recent_history[-4:], indent=2)}
+
+Write a single warm closing response (1-2 sentences max). Acknowledge what they said naturally and make it feel like a genuine, friendly sign-off. Do NOT ask any questions — the chat is over."""
+        return chat(prompt, stream=stream)
+
     random_q = random.choice(config.RANDOM_QUESTIONS)
     missing_str = ", ".join(missing_fields)
 

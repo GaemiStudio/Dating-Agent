@@ -56,10 +56,6 @@ class OnboardingAgent:
         Each turn: get input → extract fields → stream response.
         """
         for turn in range(config.MAX_TURNS):
-            missing = self.store.get_missing(REQUIRED_FIELDS)
-            if not missing and turn >= config.MIN_TURNS:
-                break
-
             user_input = get_input(self.input_mode)
             if not user_input:
                 speak("Sorry, I didn't catch that — what were you saying?")
@@ -68,6 +64,7 @@ class OnboardingAgent:
             user_input = clean_text(user_input)
             self.store.add_to_history("user", user_input)
 
+            missing = self.store.get_missing(REQUIRED_FIELDS)
             logger.debug(f"Turn {turn + 1} | Missing: {missing}")
 
             # --- Field extraction (deterministic rules + LLM fallback) ---
@@ -83,7 +80,21 @@ class OnboardingAgent:
                         logger.debug(f"Extracted {field}: {value}")
 
             missing = self.store.get_missing(REQUIRED_FIELDS)
+
             if not missing and turn >= config.MIN_TURNS:
+                # All fields collected — acknowledge the user's last message
+                # naturally before handing off to _wrap_up
+                print("\nAgent: ", end="", flush=True)
+                closing = get_next_message(
+                    user_input=user_input,
+                    missing_fields=[],
+                    profile_so_far=self.store.get_filled(),
+                    recent_history=self.store.recent_history(),
+                    wrap_up=True,
+                    stream=True,
+                )
+                speak_streamed(closing)
+                self.store.add_to_history("agent", closing)
                 break
 
             # --- Stream the next agent message ---
