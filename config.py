@@ -32,6 +32,7 @@ PROFILE_SAVE_PATH = "user_profile.json"
 CONVERSATION_HISTORY_PATH = "conversation_history.json"
 VERBOSE_MODE = False
 MAX_TURNS = 20
+MIN_TURNS = 5  # keep conversation going for at least this many turns even if all fields are collected
 
 # Validation Rules
 MIN_BIO_LENGTH = 10

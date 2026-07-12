@@ -15,11 +15,28 @@ from utils import validate_field
 # Matches standalone ages 18–120 without picking up years like "1998"
 _AGE_RE = re.compile(r'\b(1[89]|[2-9]\d|1[01]\d|120)\b')
 
+# Matches "I'm a guy", "I am a woman", "I'm male", etc.
+_GENDER_RE = re.compile(
+    r"\bi(?:'m| am)(?: a(?:n)?)?\s+(guy|man|male|woman|girl|female|non-binary|nonbinary|enby)\b",
+    re.IGNORECASE
+)
+_GENDER_NORM = {
+    "guy": "male", "man": "male", "male": "male",
+    "woman": "female", "girl": "female", "female": "female",
+    "non-binary": "non-binary", "nonbinary": "non-binary", "enby": "non-binary",
+}
+
 
 def _try_extract_age(text: str) -> str | None:
     """Regex-based age extraction — no LLM needed for plain numbers."""
     match = _AGE_RE.search(text)
     return match.group() if match else None
+
+
+def _try_extract_gender(text: str) -> str | None:
+    """Regex-based gender extraction — catches 'I'm a guy/man/woman' patterns."""
+    match = _GENDER_RE.search(text)
+    return _GENDER_NORM.get(match.group(1).lower()) if match else None
 
 
 def _parse_json_from_response(content: str) -> dict:
@@ -57,6 +74,12 @@ def extract_fields(user_input: str, missing_fields: list) -> dict:
             if is_valid:
                 extracted["age"] = age_candidate
                 needs_llm.remove("age")
+
+    if "gender" in needs_llm:
+        gender_candidate = _try_extract_gender(user_input)
+        if gender_candidate:
+            extracted["gender"] = gender_candidate
+            needs_llm.remove("gender")
 
     # --- LLM extraction for remaining fields ---
     if needs_llm:

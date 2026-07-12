@@ -19,12 +19,11 @@ def analyze_vibe(profile: dict, stream: bool = False) -> str:
     clean_profile = {k: v for k, v in profile.items()
                      if v and k != "created_at"}
 
-    prompt = f"""Write a 2-sentence personality vibe for someone's dating profile. Short, grounded, warm — not poetic or romantic.
+    prompt = f"""Write a personality vibe for someone's dating profile. Two sentences only — no labels, no headers, no "Sentence 1/2".
 
-Sentence 1: Capture their energy using one sensory detail — a color, season, time of day, or texture. Keep it specific to who they actually are.
-Sentence 2: One honest observation about what kind of person might complement them well.
+Capture their energy using one sensory detail (color, season, time of day, or texture) tied to who they actually are. Then one honest observation about what kind of person might complement them well.
 
-No metaphors. No flowery language. No paragraphs. Just two clear, warm sentences.
+Keep it short, warm, and grounded. No flowery language.
 
 Profile:
 {json.dumps(clean_profile, indent=2)}"""

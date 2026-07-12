@@ -57,7 +57,7 @@ class OnboardingAgent:
         """
         for turn in range(config.MAX_TURNS):
             missing = self.store.get_missing(REQUIRED_FIELDS)
-            if not missing:
+            if not missing and turn >= config.MIN_TURNS:
                 break
 
             user_input = get_input(self.input_mode)
@@ -83,7 +83,7 @@ class OnboardingAgent:
                         logger.debug(f"Extracted {field}: {value}")
 
             missing = self.store.get_missing(REQUIRED_FIELDS)
-            if not missing:
+            if not missing and turn >= config.MIN_TURNS:
                 break
 
             # --- Stream the next agent message ---

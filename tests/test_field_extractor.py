@@ -6,7 +6,7 @@ path (mocked so tests run without Ollama or Gemini).
 """
 
 from unittest.mock import patch
-from skills.field_extractor import extract_fields, _try_extract_age
+from skills.field_extractor import extract_fields, _try_extract_age, _try_extract_gender
 
 
 # --- Deterministic age extraction ---
@@ -32,6 +32,31 @@ def test_extract_age_maximum_boundary():
 
 def test_extract_age_no_number():
     assert _try_extract_age("I love hiking") is None
+
+
+# --- Deterministic gender extraction ---
+
+def test_extract_gender_guy():
+    assert _try_extract_gender("I'm a guy") == "male"
+
+def test_extract_gender_man():
+    assert _try_extract_gender("I am a man") == "male"
+
+def test_extract_gender_woman():
+    assert _try_extract_gender("I'm a woman") == "female"
+
+def test_extract_gender_girl():
+    assert _try_extract_gender("I'm a girl") == "female"
+
+def test_extract_gender_non_binary():
+    assert _try_extract_gender("I'm non-binary") == "non-binary"
+
+def test_extract_gender_no_match():
+    assert _try_extract_gender("I love hiking") is None
+
+def test_extract_gender_not_self_referential():
+    """Should not extract from 'she is a woman' — only 'I am' patterns."""
+    assert _try_extract_gender("she is a woman") is None
 
 
 # --- Full extract_fields (mocked LLM) ---
