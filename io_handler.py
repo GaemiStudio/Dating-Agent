@@ -6,17 +6,27 @@ No decisions, no LLM calls. Just moving words in and out.
 
 import sys
 import subprocess
+import logging
 import speech_recognition as sr
 from typing import Optional
 
 import config
+
+logger = logging.getLogger(__name__)
 
 _recognizer = sr.Recognizer()
 _tts_enabled = False  # set to True only when user picks voice mode
 
 
 def speak(text: str) -> None:
+    """Print and optionally speak a message (non-streamed)."""
     print(f"\nAgent: {text}")
+    if _tts_enabled and sys.platform == "darwin":
+        subprocess.run(["say", text])
+
+
+def speak_streamed(text: str) -> None:
+    """Called after a streamed response — handles TTS only. Text was already printed live."""
     if _tts_enabled and sys.platform == "darwin":
         subprocess.run(["say", text])
 
@@ -42,7 +52,7 @@ def get_voice_input() -> Optional[str]:
         speak("Sorry, I didn't catch that — could you say it again?")
         return None
     except Exception as e:
-        print(f"Voice error: {e}")
+        logger.error(f"Voice input error: {e}")
         return None
 
 

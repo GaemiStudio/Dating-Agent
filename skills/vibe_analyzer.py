@@ -9,7 +9,7 @@ import config
 from llm import chat
 
 
-def analyze_vibe(profile: dict) -> str:
+def analyze_vibe(profile: dict, stream: bool = False) -> str:
     """
     Given a dating profile, returns a short personality vibe summary written
     in sensory imagery — colors, seasons, time of day, sounds — plus one note
@@ -36,4 +36,4 @@ No bullet points. No headers. Just the description.
 Profile:
 {json.dumps(clean_profile, indent=2)}"""
 
-    return chat(prompt)
+    return chat(prompt, stream=stream)

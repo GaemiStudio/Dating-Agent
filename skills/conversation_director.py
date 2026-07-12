@@ -16,6 +16,7 @@ def get_next_message(
     missing_fields: list,
     profile_so_far: dict,
     recent_history: list,
+    stream: bool = False,
 ) -> str:
     """
     Generate a warm response to user_input that also nudges toward
@@ -46,4 +47,4 @@ Write your reply. Rules:
 - Never ask about something already in "already collected"
 - Sound like a real person, not a checklist"""
 
-    return chat(prompt)
+    return chat(prompt, stream=stream)

@@ -6,10 +6,13 @@ No LLM calls, no business logic, no I/O.
 """
 
 import json
+import logging
 from datetime import datetime
 
 import config
 from utils import save_json
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileStore:
@@ -49,6 +52,9 @@ class ProfileStore:
     def save(self, path: str = None) -> None:
         target = path or config.PROFILE_SAVE_PATH
         save_json(self.profile, target)
+        save_json(self.conversation_history, config.CONVERSATION_HISTORY_PATH)
+        logger.info(f"Profile saved to {target}")
+        logger.info(f"Conversation history saved to {config.CONVERSATION_HISTORY_PATH}")
         print(f"Profile saved to {target}")
 
     def summary(self) -> str:

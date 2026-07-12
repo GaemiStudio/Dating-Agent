@@ -7,11 +7,19 @@ Coordinates the conversation flow. Delegates everything:
   - End tasks → skills/vibe_analyzer, skills/match_estimator
 """
 
+import logging
 from dotenv import load_dotenv
 load_dotenv()
 
 import config
-from io_handler import speak, get_input, select_input_mode
+
+logging.basicConfig(
+    level=logging.DEBUG if config.VERBOSE_MODE else logging.WARNING,
+    format="[%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+from io_handler import speak, speak_streamed, get_input, select_input_mode
 from profile_store import ProfileStore
 from skills.field_extractor import extract_fields
 from skills.conversation_director import get_next_message
@@ -45,7 +53,7 @@ class OnboardingAgent:
     def _conversation_loop(self) -> None:
         """
         Run until all required fields are filled or the turn limit is hit.
-        Each turn: get input → extract fields → respond.
+        Each turn: get input → extract fields → stream response.
         """
         for turn in range(config.MAX_TURNS):
             missing = self.store.get_missing(REQUIRED_FIELDS)
@@ -60,8 +68,7 @@ class OnboardingAgent:
             user_input = clean_text(user_input)
             self.store.add_to_history("user", user_input)
 
-            if config.VERBOSE_MODE:
-                print(f"\n[Turn {turn + 1} | Missing: {missing}]")
+            logger.debug(f"Turn {turn + 1} | Missing: {missing}")
 
             # --- Field extraction (deterministic rules + LLM fallback) ---
             extracted = extract_fields(user_input, missing)
@@ -70,21 +77,22 @@ class OnboardingAgent:
                     is_valid, _ = validate_field(field, str(value))
                     if is_valid:
                         self.store.set_field(field, value)
-                        if config.VERBOSE_MODE:
-                            print(f"  ✓ {field}: {value}")
+                        logger.debug(f"Extracted {field}: {value}")
 
             missing = self.store.get_missing(REQUIRED_FIELDS)
             if not missing:
                 break
 
-            # --- Generate and deliver the next message ---
+            # --- Stream the next agent message ---
+            print("\nAgent: ", end="", flush=True)
             next_message = get_next_message(
                 user_input=user_input,
                 missing_fields=missing,
                 profile_so_far=self.store.get_filled(),
                 recent_history=self.store.recent_history(),
+                stream=True,
             )
-            speak(next_message)
+            speak_streamed(next_message)
             self.store.add_to_history("agent", next_message)
 
     def _wrap_up(self) -> None:
@@ -95,11 +103,13 @@ class OnboardingAgent:
         completion = get_completion_percentage(self.store.profile)
         print(f"\n✅ Profile Completion: {completion:.1f}%")
 
+        # --- Vibe Analyzer (streamed) ---
         print("\n✨ Your Vibe\n" + "-" * 40)
-        vibe = analyze_vibe(self.store.profile)
-        print(vibe)
-        speak(vibe)
+        print("Agent: ", end="", flush=True)
+        vibe = analyze_vibe(self.store.profile, stream=True)
+        speak_streamed(vibe)
 
+        # --- Match Estimator (deterministic output, no streaming needed) ---
         print("\n💫 Your Match Estimate\n" + "-" * 40)
         match_result = estimate_matches(self.store.profile)
         match_summary = (
@@ -107,7 +117,6 @@ class OnboardingAgent:
             f"{match_result['percentage']}% of people. "
             f"{match_result['interpretation']}"
         )
-        print(match_summary)
         speak(match_summary)
 
         self.store.save()
@@ -121,6 +130,8 @@ class OnboardingAgent:
 
 def _check_ollama() -> None:
     """Fail fast with a helpful message if Ollama isn't running."""
+    if config.LLM_PROVIDER != "ollama":
+        return
     import urllib.request
     try:
         urllib.request.urlopen("http://localhost:11434", timeout=3)
@@ -140,13 +151,14 @@ def main():
             print("=" * 60)
 
         OnboardingAgent().run()
+        logger.info("Onboarding completed successfully.")
 
-        if config.VERBOSE_MODE:
-            print("\n✅ Onboarding completed successfully!")
     except KeyboardInterrupt:
         print("\n\n⚠️  Onboarding cancelled.")
+    except SystemExit:
+        raise
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        logger.error(f"Unexpected error: {e}")
         if config.VERBOSE_MODE:
             import traceback
             traceback.print_exc()
