@@ -10,11 +10,17 @@ echo ""
 # Check Python version
 echo "✓ Checking Python installation..."
 if ! command -v python3 &> /dev/null; then
-    echo "❌ Python 3 is not installed. Please install Python 3.9 or higher."
+    echo "❌ Python 3 is not installed. Please install Python 3.10 or higher."
     exit 1
 fi
 
 PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
+PYTHON_MINOR=$(echo "$PYTHON_VERSION" | awk -F. '{print $2}')
+if [ "$PYTHON_MINOR" -lt 10 ] 2>/dev/null; then
+    echo "❌ Python $PYTHON_VERSION found, but 3.10+ is required."
+    echo "   The code uses 'str | None' union syntax introduced in Python 3.10."
+    exit 1
+fi
 echo "✓ Python $PYTHON_VERSION found"
 echo ""
 

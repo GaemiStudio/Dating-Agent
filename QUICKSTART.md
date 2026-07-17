@@ -4,7 +4,7 @@ Get the dating platform onboarding agent running in under 5 minutes.
 
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.10+ *(3.9 and below will fail — the code uses `str | None` union syntax)*
 - [Ollama](https://ollama.com) installed and running *(default — free, local, no API key)*
 - *Or:* a [Gemini API key](https://aistudio.google.com) if you prefer cloud inference
 
