@@ -43,7 +43,8 @@ pip install -r requirements.txt
 if [ ! -f ".env" ]; then
     echo "✓ Creating .env file from .env.example..."
     cp .env.example .env
-    echo "⚠️  Please edit .env and add your OpenAI API key"
+    echo "⚠️  Using Ollama by default (no API key needed)."
+    echo "    To use Gemini instead, add GEMINI_API_KEY to .env"
 else
     echo "✓ .env file already exists"
 fi
@@ -53,7 +54,8 @@ echo "============================================="
 echo "✅ Setup complete!"
 echo ""
 echo "Next steps:"
-echo "1. Edit .env and add your OpenAI API key"
+echo "1. Start Ollama: ollama serve  (then: ollama pull mistral)"
+echo "   Or: add GEMINI_API_KEY to .env and set LLM_PROVIDER=gemini in config.py"
 echo "2. Run: source venv/bin/activate"
 echo "3. Run: python main.py"
 echo ""
